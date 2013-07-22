@@ -1,0 +1,47 @@
+#! /usr/bin/env stap
+
+/*
+ * Summary: Shows requests sorted by time needed to finished them.
+ * Description:
+ * Prints 10 slowest requests together with the time needed to handle them.
+ * Also prints the requests grouped by URI together with avg/min/max time
+ * per each URI.
+ */
+
+global request
+global st
+global sorted
+
+probe process("/usr/sbin/httpd").function("ap_process_async_request") {
+	uri = user_string($r->uri)
+	request[pid(), tid(), uri, $r] = gettimeofday_us()
+}
+
+probe process("/usr/sbin/httpd").function("ap_process_request_after_handler") {
+	uri = user_string($r->uri)
+	if ([pid(), tid(), uri, $r] in request) {
+		diff = gettimeofday_us() - request[pid(), tid(), uri, $r]
+		request[pid(), tid(), uri, $r] = diff
+		st[uri] <<< diff
+	}
+}
+
+probe end {
+	i = 1
+	printf("10 slowest requests:\n")
+	foreach (v = [pid, tid, uri, r] in request- limit 10) {
+		printf("   %d. '%s': %d us\n", i, uri, v)
+		i = i + 1
+	}
+
+	foreach (k in st) {
+		sorted[k] = @avg(st[k])
+	}
+
+	i = 1
+	printf("Grouped requests by URI:\n")
+	foreach (v = [k] in sorted-) {
+		printf("   %d. '%s': avg=%d us, min=%d us, max=%d us\n", i, k, @avg(st[k]), @min(st[k]), @max(st[k]))
+		i = i + 1
+	}
+}

@@ -1,0 +1,77 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+def get_scripts_in_dir(scripts, d):
+	if not os.path.exists(d):
+		return scripts
+	for script in os.listdir(d):
+		if not script.endswith(".stp"):
+			continue
+		scripts[script[:-4]] = d + "/" + script
+	return scripts
+
+def get_available_scripts():
+	scripts = {}
+	scripts = get_scripts_in_dir(scripts, "./scripts")
+	scripts = get_scripts_in_dir(scripts, "/usr/share/httpdtap/")
+	return scripts
+
+def get_summary(script):
+	summary = ""
+	f = open(script, "r")
+	for line in f.readlines():
+		if line.find("Summary:") == -1:
+			continue
+		summary = line[line.find("Summary:") + 8:].strip()
+		break
+	f.close()
+	return summary;
+
+def get_description(script):
+	desc = ""
+	in_desc = False
+	f = open(script, "r")
+	for line in f.readlines():
+		if not in_desc and line.find("Description:") == -1:
+			continue
+		if line.find("*/") != -1:
+			break
+		if not in_desc:
+			desc += line[line.find("Description:") + 12:].strip() + "\n"
+		else:
+			desc += line[line.find("*") + 1:].strip() + "\n"
+		in_desc = True
+	f.close()
+	return desc
+
+def show_scripts_summary(scripts):
+	keys = scripts.keys()
+	keys.sort()
+	for k in keys:
+		print k, "-", get_summary(scripts[k])
+
+scripts = get_available_scripts()
+
+if len(sys.argv) == 1 or not scripts.has_key(sys.argv[1]):
+	if len(sys.argv) == 3 and sys.argv[1] == "help" and scripts.has_key(sys.argv[2]):
+		print get_summary(scripts[sys.argv[2]])
+		print get_description(scripts[sys.argv[2]])
+	else:
+		print "Usage:", sys.argv[0], "<command> [[arg], ...]"
+		print "      ", sys.argv[0], "help <command>"
+		print "Available commands:"
+		show_scripts_summary(scripts)
+	sys.exit(0)
+
+if os.geteuid() != 0:
+	print('You are trying to run httpdtap as a normal user.')
+	print('You should either be root, or be part of the group "stapusr" and possibly one of the groups "stapsys" or "stapdev".')
+	# print('Alternatively, you may specify --runtime=dyninst for userspace probing.')
+	print("Try 'systemtap --help' for more information.")
+	sys.exit(-1)
+
+command = "stap " + scripts[sys.argv[1]] + " " + " ".join(sys.argv[1:])
+#print "Executing:", command
+sys.exit(os.system(command))
