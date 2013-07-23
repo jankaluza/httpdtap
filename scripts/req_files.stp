@@ -2,6 +2,8 @@
 
 /*
  * Summary: Shows files opened during the request.
+ * Description:
+ * req_files <show-failed> - Shows also failed tries to open particular file.
  */
 
 global request
@@ -16,7 +18,14 @@ probe syscall.open.return {
 	now = gettimeofday_us()
 	if ([pid(), tid()] in request) {
 		filename = user_string($filename)
-		printf("[%d] [pid=%d, tid=%d] Opening: %s\n", now, pid(), tid(), filename)
+		if ($return >= 0) {
+			printf("[%d] [pid=%d, tid=%d] Opened: %s\n", now, pid(), tid(), filename)
+		}
+%( $# == 2 %?
+		else if (@2 == "show-failed") {
+			printf("[%d] [pid=%d, tid=%d] Opening failed: %s\n", now, pid(), tid(), filename)
+		}
+%)
 	}
 }
 
