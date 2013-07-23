@@ -3,6 +3,52 @@ httpdtap
 
 Tool for querying httpd using SystemTap scripts.
 
+- [req_files](#httpdtap-req_files) - Shows files opened during the request.
+- [req_from](#httpdtap-req_from) - Shows requests received from particular IP.
+- [req_time](#httpdtap-req_time) - Shows requests sorted by the time needed to finished them.
+
+## httpdtap req_files
+
+Shows files opened during the request.
+
+	$ httpdtap req_files
+	[1374585172491278] [pid=6467, tid=6467] Handling new request: /wordpress/wp-includes/js/thickbox/thickbox.css?ver=20121105
+	[1374585172491611] [pid=6109, tid=6109] Opened: /usr/share/wordpress/wp-admin/load-styles.php
+	[1374585172491987] [pid=6467, tid=6467] Opened: /usr/share/wordpress/wp-includes/js/thickbox/thickbox.css
+	[1374585172492053] [pid=6467, tid=6467] Request handled: /wordpress/wp-includes/js/thickbox/thickbox.css?ver=20121105
+
+## httpdtap req_from
+
+Shows requests received from particular IP.
+
+	$ httpdtap req_from 127.0.0.1
+	[1374585073614751] GET /wordpress/wp-admin/post-new.php HTTP/1.1
+	[1374585073614751] Host: 127.0.0.1
+	[1374585073614751] User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:21.0) Gecko/20100101 Firefox/21.0
+	[1374585073614751] Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+	[1374585073614751] Accept-Language: en-US,en;q=0.5
+	[1374585073614751] Accept-Encoding: gzip, deflate
+	[1374585073614751] Referer: http://127.0.0.1/wordpress/wp-admin/edit.php
+	[1374585073614751] Cookie: wordpress_5bd7a9c61cda6e66fc921a05bc80ee93=admin%7C1374753628%7Cac915d5efaaff35c45c7d1432d95a57f; wordpress_test_cookie=WP+Cookie+check; wordpress_logged_in_5bd7a9c61cda6e66fc921a05bc80ee93=admin%7C1374753628%7Ceb7ba75e0a7c259fbfe470f111f42ac0; wp-settings-time-1=1374584745
+	[1374585073614751] Connection: keep-alive
+	[1374585073614751] Cache-Control: max-age=0
+	[1374585073614751] ...
+	[1374585074081221] POST /wordpress/wp-admin/admin-ajax.php HTTP/1.1
+	[1374585074081221] Host: 127.0.0.1
+	[1374585074081221] User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:21.0) Gecko/20100101 Firefox/21.0
+	[1374585074081221] Accept: */*
+	[1374585074081221] Accept-Language: en-US,en;q=0.5
+	[1374585074081221] Accept-Encoding: gzip, deflate
+	[1374585074081221] Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+	[1374585074081221] X-Requested-With: XMLHttpRequest
+	[1374585074081221] Referer: http://127.0.0.1/wordpress/wp-admin/post-new.php
+	[1374585074081221] Content-Length: 56
+	[1374585074081221] Cookie: wordpress_5bd7a9c61cda6e66fc921a05bc80ee93=admin%7C1374753628%7Cac915d5efaaff35c45c7d1432d95a57f; wordpress_test_cookie=WP+Cookie+check; wordpress_logged_in_5bd7a9c61cda6e66fc921a05bc80ee93=admin%7C1374753628%7Ceb7ba75e0a7c259fbfe470f111f42ac0; wp-settings-time-1=1374585074
+	[1374585074081221] Connection: keep-alive
+	[1374585074081221] Pragma: no-cache
+	[1374585074081221] Cache-Control: no-cache
+	[1374585074081221] ...
+
 ## httpdtap req_time
 
 Shows requests sorted by the time needed to finished them.
