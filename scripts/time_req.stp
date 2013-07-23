@@ -8,20 +8,23 @@
  * per each URI.
  */
 
-global request
-global st
-global sorted
+global pending_requests[2048]
+global requests[2048]
+global st[512]
+global sorted[512]
 
 probe process("/usr/sbin/httpd").function("ap_process_async_request") {
 	uri = user_string($r->uri)
-	request[pid(), tid(), uri, $r] = gettimeofday_us()
+	pending_requests[pid(), tid(), uri, $r] = gettimeofday_us()
 }
 
 probe process("/usr/sbin/httpd").function("ap_process_request_after_handler") {
 	uri = user_string($r->uri)
-	if ([pid(), tid(), uri, $r] in request) {
-		diff = gettimeofday_us() - request[pid(), tid(), uri, $r]
-		request[pid(), tid(), uri, $r] = diff
+	if ([pid(), tid(), uri, $r] in pending_requests) {
+		now = gettimeofday_us()
+		diff = now - pending_requests[pid(), tid(), uri, $r]
+		delete pending_requests[pid(), tid(), uri, $r]
+		requests[pid(), tid(), uri, $r, now] = diff
 		st[uri] <<< diff
 	}
 }
@@ -29,7 +32,7 @@ probe process("/usr/sbin/httpd").function("ap_process_request_after_handler") {
 probe end {
 	i = 1
 	printf("10 slowest requests:\n")
-	foreach (v = [pid, tid, uri, r] in request- limit 10) {
+	foreach (v = [pid, tid, uri, r, now] in requests- limit 10) {
 		printf("   %d. '%s': %d us\n", i, uri, v)
 		i = i + 1
 	}
