@@ -14,12 +14,12 @@ global st[512]
 global sorted[512]
 
 probe process("/usr/sbin/httpd").function("ap_process_async_request") {
-	uri = user_string($r->uri)
+	uri = user_string($r->unparsed_uri)
 	pending_requests[pid(), tid(), uri, $r] = gettimeofday_us()
 }
 
 probe process("/usr/sbin/httpd").function("ap_process_request_after_handler") {
-	uri = user_string($r->uri)
+	uri = user_string($r->unparsed_uri)
 	if ([pid(), tid(), uri, $r] in pending_requests) {
 		now = gettimeofday_us()
 		diff = now - pending_requests[pid(), tid(), uri, $r]
