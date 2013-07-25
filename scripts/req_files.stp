@@ -8,7 +8,7 @@
 
 global request
 
-probe process("/usr/sbin/httpd").function("ap_process_async_request") {
+probe process("/usr/*bin/httpd").function("ap_process_async_request") {
 	now = gettimeofday_us()
 	printf("[%d] [pid=%d, tid=%d] Handling new request: %s\n", now, pid(), tid(), user_string($r->unparsed_uri))
 	request[pid(), tid()] = $r
@@ -29,7 +29,7 @@ probe syscall.open.return {
 	}
 }
 
-probe process("/usr/sbin/httpd").function("ap_process_request_after_handler") {
+probe process("/usr/*bin/httpd").function("ap_process_request_after_handler") {
 	if ([pid(), tid()] in request) {
 		now = gettimeofday_us()
 		printf("[%d] [pid=%d, tid=%d] Request handled: %s\n", now, pid(), tid(), user_string($r->unparsed_uri))
