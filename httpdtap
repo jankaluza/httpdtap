@@ -2,6 +2,7 @@
 
 import os
 import sys
+import subprocess
 
 def get_scripts_in_dir(scripts, d):
 	if not os.path.exists(d):
@@ -12,10 +13,24 @@ def get_scripts_in_dir(scripts, d):
 		scripts[script[:-4]] = d + "/" + script
 	return scripts
 
+def get_httpd_version():
+	p = subprocess.Popen(["httpd", "-v"], stdout=subprocess.PIPE)
+	out, err = p.communicate()
+
+	if out.find("/2.2") != -1:
+		return "22"
+	if out.find("/2.4") != -1:
+		return "24"
+
+	print "Unable to detect httpd version!"
+	sys.exit(-2)
+
 def get_available_scripts():
+	version = get_httpd_version();
+
 	scripts = {}
-	scripts = get_scripts_in_dir(scripts, "./scripts")
-	scripts = get_scripts_in_dir(scripts, "/usr/share/httpdtap/")
+	scripts = get_scripts_in_dir(scripts, "./scripts-" + version)
+	scripts = get_scripts_in_dir(scripts, "/usr/share/httpdtap/scripts-" + version)
 	return scripts
 
 def get_summary(script):

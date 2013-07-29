@@ -1,0 +1,51 @@
+#! /usr/bin/env stap
+
+/*
+ * Summary: Shows 
+ * Description:
+ * Prints 10 slowest requests together with the time needed to handle them.
+ * Also prints the requests grouped by URI together with avg/min/max time
+ * per each URI.
+ */
+
+global allocs
+global uris
+
+probe process("/usr/*bin/httpd").function("ap_read_request") {
+	if ([pid(), tid()] in allocs) {
+		printf("Finished request %s: %d bytes allocated\n", uris[pid(), tid()], allocs[pid(), tid()])
+	}
+
+	uris[pid(), tid()] = ""
+	allocs[pid(), tid()] = 0
+}
+
+
+probe process("/usr/*bin/httpd").function("ap_process_async_request") {
+    uris[pid(), tid()] = user_string($r->unparsed_uri)
+}
+
+probe process("/usr/*bin/httpd").function("ap_lingering_close") {
+	delete allocs[pid(), tid()]
+	delete uris[pid(), tid()]
+}
+
+probe process("/usr/lib*/libapr-1.so.*").mark("pool_alloc") {
+	if ([pid(), tid()] in allocs) {
+		allocs[pid(), tid()] += $arg2
+	}
+}
+
+
+probe process("/lib*/libc.so.*").function("_int_malloc") {
+	if ([pid(), tid()] in allocs) {
+		allocs[pid(), tid()] += $bytes
+	}
+}
+
+probe process("/lib*/libc.so.*").function("free") {
+	if ([pid(), tid()] in allocs) {
+		printf("free %d\n", $mem)
+	}
+}
+

@@ -15,7 +15,10 @@ import shutil
 setup(
     name = 'httpdtap',
     description = 'Tool for searching for patches of particular component',
-    data_files = [('/usr/share/httpdtap/', [ 'scripts/req_time.stp', 'scripts/req_from.stp', 'scripts/req_files.stp', 'scripts/req_slower_than.stp' ] ) ],
+    data_files = [('/usr/share/httpdtap/',
+				   [ 'scripts-22/req_time.stp','scripts-22/req_from.stp', 'scripts-22/req_files.stp', 'scripts-22/req_slower_than.stp' ],
+				   [ 'scripts-24/req_time.stp','scripts-24/req_from.stp', 'scripts-24/req_files.stp', 'scripts-24/req_slower_than.stp' ]
+				   ) ],
     version = version,
     license = 'ASL2',
     download_url = 'https://github.com/hanzz/httpdtap',

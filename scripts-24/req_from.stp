@@ -1,0 +1,32 @@
+#! /usr/bin/env stap
+
+/*
+ * Summary: Shows requests received from particular IP.
+ * Description:
+ * Syntax: "req_from <ip_address>"
+ */
+
+probe process("/usr/*bin/httpd").function("ap_process_async_request") {
+	ip = user_string($r->useragent_ip)
+	if (ip == @2) {
+		now = gettimeofday_us()
+		printf("[%d] %s\n", now, user_string($r->the_request))
+
+		/* Print $r->headers_in */
+		for (i = 0; i < @cast($r->headers_in, "apr_array_header_t")->nelts; i++) {
+			key = user_string(
+				@cast(
+					@cast($r->headers_in, "apr_array_header_t")->elts + i * @cast($r->headers_in, "apr_array_header_t")->elt_size, "apr_table_entry_t"
+				)->key
+			)
+			value = user_string(
+				@cast(
+					@cast($r->headers_in, "apr_array_header_t")->elts + i * @cast($r->headers_in, "apr_array_header_t")->elt_size, "apr_table_entry_t"
+				)->val
+			)
+			printf("[%d] %s: %s\n", now, key, value)
+		}
+		printf("[%d] ...\n", now)
+	}
+}
+

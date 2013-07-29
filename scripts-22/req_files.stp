@@ -1,0 +1,41 @@
+#! /usr/bin/env stap
+
+/*
+ * Summary: Shows files opened during the request.
+ * Description:
+ * req_files <show-failed> - Shows also failed tries to open particular file.
+ */
+
+global request
+
+probe process("/usr/*bin/httpd").function("ap_process_request") {
+	now = gettimeofday_us()
+	printf("[%d] [pid=%d, tid=%d] Handling new request: %s\n", now, pid(), tid(), user_string($r->unparsed_uri))
+	request[pid(), tid()] = $r
+}
+
+probe syscall.open.return {
+	now = gettimeofday_us()
+	if ([pid(), tid()] in request) {
+		filename = user_string($filename)
+		if ($return >= 0) {
+			printf("[%d] [pid=%d, tid=%d] Opened: %s\n", now, pid(), tid(), filename)
+		}
+%( $# == 2 %?
+		else if (@2 == "show-failed") {
+			printf("[%d] [pid=%d, tid=%d] Opening failed: %s\n", now, pid(), tid(), filename)
+		}
+%)
+	}
+}
+
+probe process("/usr/*bin/httpd").function("ap_pass_brigade") {
+	if ([pid(), tid()] in request) {
+		now = gettimeofday_us()
+		r = request[pid(), tid()]
+		if ($next->r == r && @cast($next->r, "request_rec")->output_filters == $next) {
+			printf("[%d] [pid=%d, tid=%d] Request handled: %s\n", now, pid(), tid(), user_string(@cast($next->r, "request_rec")->unparsed_uri))
+			delete request[pid(), tid()]
+		}
+	}
+}
