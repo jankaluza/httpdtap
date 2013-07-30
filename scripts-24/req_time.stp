@@ -3,9 +3,10 @@
 /*
  * Summary: Shows requests sorted by time needed to finished them.
  * Description:
- * Syntax: req_time [with_download]
- * - with_download: count also the time needed by client to fully download
- * the response.
+ * -> req_time [with_download]
+ * -> with_download: count also the time needed by client to fully download
+ *                   the response.
+ *
  * Prints 10 slowest requests together with the time needed to handle them.
  * Also prints the requests grouped by URI together with avg/min/max time
  * per each URI.

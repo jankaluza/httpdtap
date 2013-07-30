@@ -3,10 +3,9 @@
 /*
  * Summary: Shows requests slower than N ms.
  * Description:
- * Syntax: req_slower_than <ms> [with_download]
- * - with_download: count also the time needed by client to fully download
- * the response.
- * Prints Requests slower than N ms.
+ * -> req_slower_than <ms> [with_download]
+ * -> with_download: count also the time needed by client to fully download
+ *                   the response.
  */
 
 global pending_requests[2048]

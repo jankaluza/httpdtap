@@ -3,7 +3,7 @@
 /*
  * Summary: Shows files opened during the request.
  * Description:
- * req_files <show-failed> - Shows also failed tries to open particular file.
+ * -> req_files <show-failed> - Shows also failed tries to open particular file.
  */
 
 global request
