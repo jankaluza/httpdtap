@@ -7,7 +7,7 @@
  */
 
 probe process("/usr/*bin/httpd").function("ap_process_request") {
-	ip = user_string($r->remote_ip)
+	ip = user_string(@cast($r->connection, "conn_rec")->remote_ip)
 	if (ip == @2) {
 		now = gettimeofday_us()
 		printf("[%d] %s\n", now, user_string($r->the_request))
