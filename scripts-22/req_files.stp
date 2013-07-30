@@ -31,9 +31,8 @@ probe syscall.open.return {
 
 probe process("/usr/*bin/httpd").function("ap_pass_brigade") {
 	if ([pid(), tid()] in request) {
-		now = gettimeofday_us()
-		r = request[pid(), tid()]
-		if ($next->r == r && @cast($next->r, "request_rec")->output_filters == $next) {
+		if (@cast($next->r, "request_rec")->output_filters == $next) {
+			now = gettimeofday_us()
 			printf("[%d] [pid=%d, tid=%d] Request handled: %s\n", now, pid(), tid(), user_string(@cast($next->r, "request_rec")->unparsed_uri))
 			delete request[pid(), tid()]
 		}
