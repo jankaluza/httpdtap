@@ -11,19 +11,21 @@ from distutils.core import setup
 version = '0.1'
 
 import shutil
+from glob import glob
+
+data_files = []
+data_files.append(('/usr/share/httpdtap/scripts-22', glob('scripts-22/*.stp')))
+data_files.append(('/usr/share/httpdtap/scripts-24', glob('scripts-24/*.stp')))
 
 setup(
-    name = 'httpdtap',
-    description = 'Tool for searching for patches of particular component',
-    data_files = [('/usr/share/httpdtap/',
-				   [ 'scripts-22/req_time.stp','scripts-22/req_from.stp', 'scripts-22/req_files.stp', 'scripts-22/req_slower_than.stp' ],
-				   [ 'scripts-24/req_time.stp','scripts-24/req_from.stp', 'scripts-24/req_files.stp', 'scripts-24/req_slower_than.stp' ]
-				   ) ],
-    version = version,
-    license = 'ASL2',
-    download_url = 'https://github.com/hanzz/httpdtap',
-    url = 'https://github.com/hanzz/httpdtap',
-    scripts = ["httpdtap"],
-    maintainer  = 'Jan Kaluza',
-    maintainer_email = 'hanzz.k@gmail.com'
+	name = 'httpdtap',
+	description = 'Tool for searching for patches of particular component',
+	data_files = data_files,
+	version = version,
+	license = 'ASL2',
+	download_url = 'https://github.com/hanzz/httpdtap',
+	url = 'https://github.com/hanzz/httpdtap',
+	scripts = ["httpdtap"],
+	maintainer  = 'Jan Kaluza',
+	maintainer_email = 'hanzz.k@gmail.com'
 )
