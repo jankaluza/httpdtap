@@ -6,8 +6,8 @@
  * Syntax: "req_from <ip_address>"
  */
 
-probe process("/usr/*bin/httpd").function("ap_process_async_request") {
-	ip = user_string($r->useragent_ip)
+probe process("/usr/*bin/httpd").function("ap_process_request") {
+	ip = user_string($r->remote_ip)
 	if (ip == @2) {
 		now = gettimeofday_us()
 		printf("[%d] %s\n", now, user_string($r->the_request))
