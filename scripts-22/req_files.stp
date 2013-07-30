@@ -29,6 +29,10 @@
 
 global request
 
+probe begin {
+	printf("Showing files accessed by requests.\n")
+}
+
 probe process("/usr/*bin/httpd").function("ap_process_request") {
 	now = gettimeofday_us()
 	printf("[%d] [pid=%d, tid=%d] Handling new request: %s\n", now, pid(), tid(), user_string($r->unparsed_uri))

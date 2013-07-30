@@ -39,6 +39,10 @@ global requests_uri[2048]
 global st[512]
 global sorted[512]
 
+probe begin {
+	printf("Gathering data. Use ctrl+c to stop this script and get the results.\n")
+}
+
 probe process("/usr/*bin/httpd").function("ap_process_async_request") {
     requests_uri[pid(), tid(), $r->connection] = user_string($r->unparsed_uri)
 	pending_requests[pid(), tid(), $r->connection] = gettimeofday_us()

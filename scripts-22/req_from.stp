@@ -27,6 +27,10 @@
  * Author: Jan Kaluza
  */
 
+probe begin {
+	printf("Showing requests from %s\n", @2)
+}
+
 probe process("/usr/*bin/httpd").function("ap_process_request") {
 	ip = user_string(@cast($r->connection, "conn_rec")->remote_ip)
 	if (ip == @2) {
