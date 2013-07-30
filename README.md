@@ -2,10 +2,34 @@ httpdtap
 ========
 
 Tool for querying httpd using SystemTap scripts.
+- [Installation](#installation)
+- [usage](#usage)
+- Available commands:
+   - [req_files](#httpdtap-req_files) - Shows files opened during the request.
+   - [req_from](#httpdtap-req_from) - Shows requests received from particular IP.
+   - [req_time](#httpdtap-req_time) - Shows requests sorted by the time needed to finished them.
+   - [req_slower_than](#httpdtap-req_slower_than) - Shows requests slower than N ms.
 
-- [req_files](#httpdtap-req_files) - Shows files opened during the request.
-- [req_from](#httpdtap-req_from) - Shows requests received from particular IP.
-- [req_time](#httpdtap-req_time) - Shows requests sorted by the time needed to finished them.
+## Installation
+
+	git clone https://github.com/hanzz/httpdtap.git
+	cd httpdtap
+	sudo python setup.py install
+
+## Usage
+
+- **Install http-debuginfo and kernel-debuginfo packages.**
+- Get the list of available commands:
+
+	httpdtap
+
+- Run the chosen command:
+
+	httpdtap req_from 127.0.0.1
+
+- To use verbose mode, add -v:
+
+	httpdtap req_from 127.0.0.1 -v
 
 ## httpdtap req_files
 
@@ -99,3 +123,11 @@ Shows requests sorted by the time needed to finished them.
 	30. '/wordpress/wp-includes/css/editor.min.css?ver=3.5.2': avg=161 us, min=154 us, max=168 us
 	31. '/wordpress/wp-includes/images/down_arrow.gif': avg=72 us, min=72 us, max=72 us
 	32. '/wordpress/wp-admin/images/resize.gif': avg=72 us, min=72 us, max=72 us
+
+## httpdtap req_slower_than
+
+Shows requests slower than N ms.
+
+	$ httpdtap req_slower_than 1 with_download
+	Showing requests slower than 1 ms
+	Slow request took 5273 ms: GET /test.img HTTP/1.1
