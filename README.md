@@ -18,18 +18,19 @@ Tool for querying httpd using SystemTap scripts.
 
 ## Usage
 
-- **Install http-debuginfo and kernel-debuginfo packages.**
-- Get the list of available commands:
+**Install http-debuginfo and kernel-debuginfo packages.** To Get the list of available commands, simply run:
 
 	httpdtap
 
-- Run the chosen command:
+To execute chosen command, run:
 
 	httpdtap req_from 127.0.0.1
+	
 
-- To use verbose mode, add -v:
+For verbose mode add -v:
 
 	httpdtap req_from 127.0.0.1 -v
+	
 
 ## httpdtap req_files
 
