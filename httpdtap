@@ -93,8 +93,9 @@ if len(sys.argv) == 1 or not scripts.has_key(sys.argv[1]):
 		print get_summary(scripts[sys.argv[2]])
 		print get_description(scripts[sys.argv[2]])
 	else:
-		print "Usage:", sys.argv[0], "<command> [[arg], ...]"
+		print "Usage:", sys.argv[0], "<command> [[stap_argument], ...] [[arg], ...]"
 		print "      ", sys.argv[0], "help <command>"
+		print "For list of stap arguments, see 'man stap'."
 		print "Available commands:"
 		show_scripts_summary(scripts)
 	sys.exit(0)
