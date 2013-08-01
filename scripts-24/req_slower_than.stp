@@ -45,22 +45,22 @@ probe begin {
 }
 
 probe process("/usr/*bin/httpd").function("ap_process_async_request") {
-	pending_requests[pid(), tid(), $r->connection] = gettimeofday_ms()
-	requests_uri[pid(), tid(), $r->connection] = user_string($r->the_request)
+	pending_requests[tid(), $r->connection] = gettimeofday_ms()
+	requests_uri[tid(), $r->connection] = user_string($r->the_request)
 }
 
 /* Version without "with_download" option */
 %( $# == 2 %?
 
 probe process("/usr/*bin/httpd").function("ap_process_request_after_handler") {
-	if ([pid(), tid(), $r->connection] in pending_requests) {
+	if ([tid(), $r->connection] in pending_requests) {
 		now = gettimeofday_ms()
-		diff = now - pending_requests[pid(), tid(), $r->connection]
+		diff = now - pending_requests[tid(), $r->connection]
 		if (diff > $2) {
 			printf("Slow request took %d ms: %s\n", diff, user_string($r->the_request))
 		}
-		delete pending_requests[pid(), tid(), $r->connection]
-		delete requests_uri[pid(), tid(), $r->connection]
+		delete pending_requests[tid(), $r->connection]
+		delete requests_uri[tid(), $r->connection]
 	}
 }
 
@@ -70,14 +70,14 @@ probe process("/usr/*bin/httpd").function("ap_process_request_after_handler") {
 %( $# == 3 %?
 
 probe process("/usr/*bin/httpd").function("ap_read_request") {
-	if ([pid(), tid(), $conn] in pending_requests) {
+	if ([tid(), $conn] in pending_requests) {
 		now = gettimeofday_ms()
-		diff = now - pending_requests[pid(), tid(), $conn]
+		diff = now - pending_requests[tid(), $conn]
 		if (diff > $2) {
-			printf("Slow request took %d ms: %s\n", diff, requests_uri[pid(), tid(), $conn])
+			printf("Slow request took %d ms: %s\n", diff, requests_uri[tid(), $conn])
 		}
-		delete pending_requests[pid(), tid(), $conn]
-		delete requests_uri[pid(), tid(), $r->connection]
+		delete pending_requests[tid(), $conn]
+		delete requests_uri[tid(), $r->connection]
 	}
 }
 

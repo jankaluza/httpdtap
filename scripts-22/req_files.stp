@@ -35,31 +35,31 @@ probe begin {
 
 probe process("/usr/*bin/httpd").function("ap_process_request") {
 	now = gettimeofday_us()
-	printf("[%d] [pid=%d, tid=%d] Handling new request: %s\n", now, pid(), tid(), user_string($r->unparsed_uri))
-	request[pid(), tid()] = $r
+	printf("[%d] [tid=%d] Handling new request: %s\n", now, tid(), user_string($r->unparsed_uri))
+	request[tid()] = $r
 }
 
 probe syscall.open.return {
 	now = gettimeofday_us()
-	if ([pid(), tid()] in request) {
+	if ([tid()] in request) {
 		filename = user_string($filename)
 		if ($return >= 0) {
-			printf("[%d] [pid=%d, tid=%d] Opened: %s\n", now, pid(), tid(), filename)
+			printf("[%d] [tid=%d] Opened: %s\n", now, tid(), filename)
 		}
 %( $# == 2 %?
 		else if (@2 == "show-failed") {
-			printf("[%d] [pid=%d, tid=%d] Opening failed: %s\n", now, pid(), tid(), filename)
+			printf("[%d] [tid=%d] Opening failed: %s\n", now, tid(), filename)
 		}
 %)
 	}
 }
 
 probe process("/usr/*bin/httpd").function("ap_pass_brigade") {
-	if ([pid(), tid()] in request) {
+	if ([tid()] in request) {
 		if (@cast($next->r, "request_rec")->output_filters == $next) {
 			now = gettimeofday_us()
-			printf("[%d] [pid=%d, tid=%d] Request handled: %s\n", now, pid(), tid(), user_string(@cast($next->r, "request_rec")->unparsed_uri))
-			delete request[pid(), tid()]
+			printf("[%d] [tid=%d] Request handled: %s\n", now, tid(), user_string(@cast($next->r, "request_rec")->unparsed_uri))
+			delete request[tid()]
 		}
 	}
 }

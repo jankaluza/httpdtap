@@ -106,6 +106,6 @@ if os.geteuid() != 0:
 	print("Try 'systemtap --help' for more information.")
 	sys.exit(-1)
 
-command = "stap " + scripts[sys.argv[1]] + " " + " ".join(sys.argv[1:])
+command = "stap -s1 " + scripts[sys.argv[1]] + " " + " ".join(sys.argv[1:])
 #print "Executing:", command
 sys.exit(os.system(command))

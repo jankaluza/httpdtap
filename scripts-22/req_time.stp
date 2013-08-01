@@ -44,8 +44,8 @@ probe begin {
 }
 
 probe process("/usr/*bin/httpd").function("ap_process_request") {
-    requests_uri[pid(), tid(), $r->connection] = user_string($r->unparsed_uri)
-	pending_requests[pid(), tid(), $r->connection] = gettimeofday_us()
+    requests_uri[tid(), $r->connection] = user_string($r->unparsed_uri)
+	pending_requests[tid(), $r->connection] = gettimeofday_us()
 }
 
 /* Version without "with_download" option */
@@ -54,14 +54,14 @@ probe process("/usr/*bin/httpd").function("ap_process_request") {
 probe process("/usr/*bin/httpd").function("ap_pass_brigade") {
 	if ($next->r) {
 		conn = @cast($next->r, "request_rec")->connection
-		if ([pid(), tid(), conn] in pending_requests) {
+		if ([tid(), conn] in pending_requests) {
 			if (@cast($next->r, "request_rec")->output_filters == $next) {
 				uri = user_string($next->r->unparsed_uri)
 				now = gettimeofday_us()
-				diff = now - pending_requests[pid(), tid(), conn]
-				delete pending_requests[pid(), tid(), conn]
-				delete requests_uri[pid(), tid(), conn]
-				requests[pid(), tid(), uri, conn, now] = diff
+				diff = now - pending_requests[tid(), conn]
+				delete pending_requests[tid(), conn]
+				delete requests_uri[tid(), conn]
+				requests[tid(), uri, conn, now] = diff
 				st[uri] <<< diff
 			}
 		}
@@ -74,13 +74,13 @@ probe process("/usr/*bin/httpd").function("ap_pass_brigade") {
 %( $# == 2 %?
 
 probe process("/usr/*bin/httpd").function("ap_finalize_request_protocol") {
-	if ([pid(), tid(), $r->connection] in pending_requests) {
+	if ([tid(), $r->connection] in pending_requests) {
 		now = gettimeofday_us()
-		uri = requests_uri[pid(), tid(), $r->connection]
-		diff = now - pending_requests[pid(), tid(), $r->connection]
-		delete pending_requests[pid(), tid(), $r->connection]
-		delete requests_uri[pid(), tid(), $r->connection]
-		requests[pid(), tid(), uri, $r->connection, now] = diff
+		uri = requests_uri[tid(), $r->connection]
+		diff = now - pending_requests[tid(), $r->connection]
+		delete pending_requests[tid(), $r->connection]
+		delete requests_uri[tid(), $r->connection]
+		requests[tid(), uri, $r->connection, now] = diff
 		st[uri] <<< diff
 	}
 }
@@ -90,7 +90,7 @@ probe process("/usr/*bin/httpd").function("ap_finalize_request_protocol") {
 probe end {
 	i = 1
 	printf("10 slowest requests:\n")
-	foreach (v = [pid, tid, uri, conn, now] in requests- limit 10) {
+	foreach (v = [tid, uri, conn, now] in requests- limit 10) {
 		printf("   %d. '%s': %d us\n", i, uri, v)
 		i = i + 1
 	}
