@@ -12,8 +12,14 @@ Tool for querying httpd using SystemTap scripts.
 
 ## Installation
 
+Httpdtap depends only on "stap" executable, which is usually part of systemtap package, so be sure to have it installed.
+Then you can continue with httpdtap installation:
+
 	git clone https://github.com/hanzz/httpdtap.git
 	cd httpdtap
+
+Installation itself is optional, you can skip this step and just use "./httpdtap" from the current working directory.
+
 	sudo python setup.py install
 
 ## Usage
