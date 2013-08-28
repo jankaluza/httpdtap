@@ -23,6 +23,9 @@ import os
 import sys
 import subprocess
 
+# Do not forget to change VERSION also in setup.py file
+VERSION = "0.1"
+
 def get_scripts_in_dir(scripts, d):
 	if not os.path.exists(d):
 		return scripts
@@ -92,9 +95,14 @@ if len(sys.argv) == 1 or not scripts.has_key(sys.argv[1]):
 	if len(sys.argv) == 3 and sys.argv[1] == "help" and scripts.has_key(sys.argv[2]):
 		print get_summary(scripts[sys.argv[2]])
 		print get_description(scripts[sys.argv[2]])
+	elif len(sys.argv) == 2 and (sys.argv[1] == "--version" or sys.argv[1] == "-v"):
+		print "httpdtap version", VERSION
+		print "Released under ASL 2.0 license"
+		print "https://github.com/hanzz/httpdtap"
 	else:
 		print "Usage:", sys.argv[0], "<command> [[stap_argument], ...] [[arg], ...]"
 		print "      ", sys.argv[0], "help <command>"
+		print "      ", sys.argv[0], "--version"
 		print "For list of stap arguments, see 'man stap'."
 		print "Available commands:"
 		show_scripts_summary(scripts)
@@ -104,7 +112,7 @@ if os.geteuid() != 0:
 	print('You are trying to run httpdtap as a normal user.')
 	print('You should either be root, or be part of the group "stapusr" and possibly one of the groups "stapsys" or "stapdev".')
 	# print('Alternatively, you may specify --runtime=dyninst for userspace probing.')
-	print("Try 'systemtap --help' for more information.")
+	print("Try 'stap --help' for more information.")
 	sys.exit(-1)
 
 command = "stap -s1 " + scripts[sys.argv[1]] + " " + " ".join(sys.argv[1:])

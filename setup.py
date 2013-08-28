@@ -27,6 +27,7 @@ pkg_dir = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
                        'src')
 
 from distutils.core import setup
+# Do not forget to change VERSION also in httpdtap file
 version = '0.1'
 
 import shutil
@@ -38,7 +39,7 @@ data_files.append(('/usr/share/httpdtap/scripts-24', glob('scripts-24/*.stp')))
 
 setup(
 	name = 'httpdtap',
-	description = 'Tool for searching for patches of particular component',
+	description = 'Tool for querying httpd using SystemTap scripts.',
 	data_files = data_files,
 	version = version,
 	license = 'ASL2',

@@ -28,8 +28,18 @@
  */
 
 probe begin {
+%( $# < 2 %?
+	printf("Missing IP address!\n")
+	printf("Syntax: req_from <ip_address>\n")
+	exit()
+%)
+
+%( $# >= 2 %?
 	printf("Showing requests from %s\n", @2)
+%)
 }
+
+%( $# >= 2 %?
 
 probe process("/usr/*bin/httpd").function("ap_process_request") {
 	ip = user_string(@cast($r->connection, "conn_rec")->remote_ip)
@@ -55,3 +65,4 @@ probe process("/usr/*bin/httpd").function("ap_process_request") {
 	}
 }
 
+%)
