@@ -36,6 +36,7 @@ from glob import glob
 data_files = []
 data_files.append(('/usr/share/httpdtap/scripts-22', glob('scripts-22/*.stp')))
 data_files.append(('/usr/share/httpdtap/scripts-24', glob('scripts-24/*.stp')))
+data_files.append(('/usr/share/man/man8', glob('man/*.8')))
 
 setup(
 	name = 'httpdtap',

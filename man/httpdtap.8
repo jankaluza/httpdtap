@@ -1,0 +1,68 @@
+."
+."     Title: httpdtap
+."    Author: Jan Kaluza <jkaluza@redhat.com>
+."  Language: English
+."      Date: 2013-09-10
+."
+.TH httpdtap 8  "September 10, 2013" "Version 0.2" "httpdtap Manual"
+.SH NAME
+httpdtap \- Utility for querying httpd using SystemTap scripts.
+.SH SYNOPSIS
+.B httpdtap
+<command> [[stap_argument], ...] [[arg], ...]
+.sp
+.B httpdtap
+help <command>
+.sp
+.B httpdtap
+--version
+.SH DESCRIPTION
+The purpose of the \fBhttpdtap\fR utility is to query running httpd process
+to get various debugging or performance related data from it.
+.sp
+Examples of such data could be the list of files accessed during a request,
+time needed to dispatch a request, the list of requests slower than N
+milliseconds or the list of requests sent from particular IP address.
+.sp
+Thanks to SystemTap the performance penalty is very low and therefore
+the \fBhttpdtap\fR can be used even on production systems.
+.SH ACTIONS
+.sp
+Without any argument passed to \fBhttpdtap\fR, \fBhttpdtap\fR shows the help
+message and the list of available commands.
+.sp
+\fB<command> [[stap_argument], ...] [[arg], ...]\fR
+.RS 4
+Executes \fBhttpdtap\fR command. List of available commands can be obtained by
+executing \fBhttpdtap\fR without any arguments. \fBstap_argument\fR is optional
+and is the argument passed to \fBstap\fR command. These arguments are listed in
+\fBstap\fP(8) manpage. Usage of argument \fBarg\fR depends on particular commands which is
+going to be executed and is documented in \fBhelp <command>\fR output.
+.RE
+.sp
+\fBhelp <command>\fR
+.RS 4
+Shows help message related to particular \fBhttpdtap\fR command.
+.RE
+.sp
+\fB--version\fR
+.RS 4
+Shows \fBhttpdtap\fR version.
+.RE
+.SH AUTHORS
+.sp
+." template start
+.RS 4
+.ie n \{\h'-04'\(bu\h'+03'\c
+.\}
+.el \{.sp -1
+.IP \(bu 2.3
+.\}
+Jan Kaluza <jkaluza@redhat\&.com>
+.RE
+." template end, and once again template start
+.br
+.SH SEE ALSO
+\fBstap\fP(8)
+.sp
+For more information, see the httpdtap homepage at http://github.com/hanzz/httpdtap/
