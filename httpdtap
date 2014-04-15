@@ -27,15 +27,38 @@ import platform
 # Do not forget to change VERSION also in setup.py file
 VERSION = "0.1"
 
+def get_kernel_release():
+	p = subprocess.Popen(["uname", "-r"], stdout=subprocess.PIPE)
+	kernel_release, err = p.communicate()
+	return kernel_release
+
+def get_rpm_vr(n):
+	p = subprocess.Popen(["rpm", "-q", n], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	vr, err = p.communicate()
+	if p.returncode != 0:
+		return ""
+	return vr[len(n) + 1 : -1]
+
 def is_debug_installed():
+	packages = ""
+
 	distname = platform.linux_distribution()[0]
 	if distname == "Fedora":
-		if (os.system("rpm -q apr-debuginfo > /dev/null") or
-				os.system("rpm -q apr-util-debuginfo > /dev/null") or
-				os.system("rpm -q httpd-debuginfo > /dev/null") or
-				os.system("rpm -q kernel-debuginfo > /dev/null")):
+		for p in ("apr", "apr-util", "httpd"):
+			dbg_rpm_vr = get_rpm_vr(p + "-debuginfo")
+			if len(dbg_rpm_vr) == 0:
+				rpm_vr = get_rpm_vr(p)
+				if len(rpm_vr) == 0:
+					packages += " " + p + " " + p + "-debuginfo"
+				else:
+					packages += " " + p + "-debuginfo-" + rpm_vr
+
+		if os.system("rpm -q kernel-debuginfo|grep `uname -r` > /dev/null"):
+			packages += " kernel-debuginfo-" + get_kernel_release()
+
+		if packages != "":
 			print "You have to install following debuginfo packages to be able to use httpdtap:"
-			print "yum install apr-debuginfo apr-util-debuginfo httpd-debuginfo kernel-debuginfo"
+			print "yum install" + packages
 			return False
 
 	# If we don't support this distribution, just return True and hope
@@ -52,8 +75,15 @@ def get_scripts_in_dir(scripts, d):
 	return scripts
 
 def get_httpd_version():
-	p = subprocess.Popen(["httpd", "-v"], stdout=subprocess.PIPE)
+	try:
+		p = subprocess.Popen(["httpd", "-v"], stdout=subprocess.PIPE)
+	except:
+		print "Cannot find 'httpd' executable"
+		sys.exit(-4)
 	out, err = p.communicate()
+	if p.returncode != 0:
+		print "Cannot execute 'httpd -v' to detect httpd version"
+		sys.exit(-3)
 
 	if out.find("/2.2") != -1:
 		return "22"
