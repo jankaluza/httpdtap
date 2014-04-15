@@ -1,5 +1,6 @@
-Version 0.3:
+Version 0.3 (2014-04-15):
 - show information about missing debuginfo packages on Fedora
+- show error message when httpd is not installed
 
 Version 0.2 (2013-09-10):
 - added httpdtap.8 manpage

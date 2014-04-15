@@ -28,7 +28,7 @@ pkg_dir = os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])),
 
 from distutils.core import setup
 # Do not forget to change VERSION also in httpdtap file
-version = '0.1'
+version = '0.3'
 
 import shutil
 from glob import glob
