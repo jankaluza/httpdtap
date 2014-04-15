@@ -22,9 +22,25 @@
 import os
 import sys
 import subprocess
+import platform
 
 # Do not forget to change VERSION also in setup.py file
 VERSION = "0.1"
+
+def is_debug_installed():
+	distname = platform.linux_distribution()[0]
+	if distname == "Fedora":
+		if (os.system("rpm -q apr-debuginfo > /dev/null") or
+				os.system("rpm -q apr-util-debuginfo > /dev/null") or
+				os.system("rpm -q httpd-debuginfo > /dev/null") or
+				os.system("rpm -q kernel-debuginfo > /dev/null")):
+			print "You have to install following debuginfo packages to be able to use httpdtap:"
+			print "yum install apr-debuginfo apr-util-debuginfo httpd-debuginfo kernel-debuginfo"
+			return False
+
+	# If we don't support this distribution, just return True and hope
+	# the packages are installed.
+	return True
 
 def get_scripts_in_dir(scripts, d):
 	if not os.path.exists(d):
@@ -114,6 +130,9 @@ if os.geteuid() != 0:
 	# print('Alternatively, you may specify --runtime=dyninst for userspace probing.')
 	print("Try 'stap --help' for more information.")
 	sys.exit(-1)
+
+if not is_debug_installed():
+	sys.exit(-2)
 
 command = "stap -s1 " + scripts[sys.argv[1]] + " " + " ".join(sys.argv[1:])
 #print "Executing:", command
